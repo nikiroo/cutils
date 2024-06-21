@@ -13,6 +13,7 @@ START_TEST(name) {\
 END_TEST\
 
 #define FAIL(...) \
+/* TODO: test_failure(); ??? */ \
 ck_abort_msg(__VA_ARGS__)\
 
 #define ASSERT_EQUALS_STR(title, expected, received) \
