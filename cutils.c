@@ -42,3 +42,43 @@ char *strdup(const char *source) {
 	return new;
 }
 #endif
+
+#ifndef getline
+ssize_t getline(char **strp, size_t *n, FILE *f) {
+	char *str = *strp;
+	size_t max = *n;
+	ssize_t sz = 0;
+	
+	if (!str) {
+		max = 1024;
+		str = malloc(max);
+	}
+	
+	int car = '\0';
+	for (sz = 0 ; car >= 0 ; sz++) {
+		int car = fgetc(f);
+		if (car < 0)
+			break;
+
+		if (max <= sz) {
+			max *= 2;
+			str = realloc(str, max);
+		}
+		
+		str[sz] = car;
+		
+		if (car == '\n')
+			break;
+	}
+	
+	if ((car < 0) && !sz)
+		sz = -1;
+	
+	if (sz >= 0)
+		str[sz] = '\0';
+	
+	*strp = str;
+	*n = max;
+	return sz;
+}
+#endif

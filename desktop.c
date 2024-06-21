@@ -25,7 +25,9 @@
 #include <string.h>
 #include <strings.h>
 
-#include "cutils.h"
+#include "desktop.h"
+#include "array.h"
+#include "cstring.h"
 
 #define EXT "desktop"
 

@@ -633,66 +633,19 @@ void cstring_change_case(cstring_t *self, int up) {
 	free_cstring(rep);
 }
 
-static char buffer[BUFFER_SIZE];
 int cstring_readline(cstring_t *self, FILE *file) {
-	size_t size = 0;
-	int full_line;
-
-	// sanity check:
-	if (!file)
-		return 0;
-
-	if (!feof(file)) {
-		// Allow '\0' in data (1/4)
-		//buffer[BUFFER_SIZE - 1] = '\0'; // just in case
-		memset(buffer, ~0, BUFFER_SIZE);
-
-		cstring_clear(self);
-		buffer[0] = '\0';
-
-		// Note: fgets() could return NULL if EOF is reached
-		if (!fgets(buffer, (int) BUFFER_SIZE - 1, file))
-			return 0;
-		
-		// Allow '\0' in data (2/4)
-		//size = strlen(buffer);
-		size = BUFFER_SIZE;
-		while(size && buffer[size - 1])
-			size--;
-		if (size)
-			size--;
-
-		full_line = ((file && feof(file)) || size == 0
-				|| buffer[size - 1] == '\n');
-		size = cstring_remove_crlf_sz(buffer, size);
-		cstring_addfN(self, buffer, 0, size);
-
-		// No luck, we need to continue getting data
-		while (!full_line) {
-			// Allow '\0' in data (3/4)
-			//buffer[BUFFER_SIZE - 1] = '\0'; // just in case
-			memset(buffer, ~0, BUFFER_SIZE);
-			
-			if (!fgets(buffer, (int) BUFFER_SIZE - 1, file))
-				break;
-
-			// Allow '\0' in data (4/4)
-			//size = strlen(buffer);
-			size = BUFFER_SIZE;
-			while(size && buffer[size - 1])
-				size--;
-			if (size)
-				size--;
-			
-			full_line = ((file && feof(file)) || size == 0
-					|| buffer[size - 1] == '\n');
-			size = cstring_remove_crlf_sz(buffer, size);
-			cstring_addfN(self, buffer, 0, size);
-		}
-
+	ssize_t sz = getline(
+		&(self->string), 
+		&(((priv_t *) self->priv)->buffer_length), 
+		file
+	);
+	
+	if (sz > 0) {
+		self->length = cstring_remove_crlf_sz(self->string, sz);
 		return 1;
 	}
-
+	
+	cstring_clear(self);
 	return 0;
 }
 

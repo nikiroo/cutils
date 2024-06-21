@@ -20,10 +20,11 @@
 /**
  * @file cutils.h
  * @author Niki
- * @date 2020 - 2022
+ * @date 2020 - 2024
  *
  * @brief Include all the other .h as well as C99-compatible
- * <tt>strdup</tt>/<tt>strnlen</tt> functions if they are not already defined
+ * <tt>strdup</tt>/<tt>strnlen</tt>/<tt>getline</tt> functions 
+ * if they are not already defined
  */
 #ifndef CUTILS_H
 #define CUTILS_H
@@ -31,6 +32,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <stdlib.h>
 
 #include "cstring.h"
 #include "array.h"
@@ -68,6 +71,16 @@ size_t strnlen(const char *s, size_t maxlen);
  */
 char *strdup(const char *source);
 #endif
+//#if _POSIX_C_SOURCE < 200809L
+//#ifndef _GNU_SOURCE
+/**
+ * getline() reads an entire line from stream, storing the address of the
+ * buffer containing the text into *lineptr.  The buffer is null-
+ * terminated and includes the newline character, if one was found.
+ */
+ssize_t getline(char **strp, size_t *n, FILE *f);
+//#endif
+//#endif
 
 /* */
 
