@@ -22,7 +22,7 @@
  * @author Niki
  * @date 2020 - 2024
  *
- * @brief Timing macros START and STOP
+ * @brief Timing macros TIMING_START and TIMING_STOP
  *
  * 2 macro are provided to print the elapsed time between the 2 to stdout.
  */
@@ -39,7 +39,7 @@ extern "C" {
 /**
  * Start the timer.
  */
-#define START struct timeval TIMING_start, TIMING_stop; \
+#define TIMING_START struct timeval TIMING_start, TIMING_stop; \
 	/* 1 usec = 0.000001 s */ \
 	char cusec[7]; \
 	gettimeofday(&TIMING_start, NULL);
@@ -47,7 +47,7 @@ extern "C" {
 /**
  * Stop the timer and print the elapsed time to stdout.
  */
-#define STOP gettimeofday(&TIMING_stop, NULL); \
+#define TIMING_STOP gettimeofday(&TIMING_stop, NULL); \
 	TIMING_stop.tv_sec  = TIMING_stop.tv_sec  - TIMING_start.tv_sec; \
 	TIMING_stop.tv_usec = TIMING_stop.tv_usec - TIMING_start.tv_usec; \
 	sprintf(cusec, "%0.6d", TIMING_stop.tv_usec); \
