@@ -62,10 +62,9 @@ mrpropre: clean
 	rmdir $(dstdir) 2>/dev/null || true
 
 install: 
-	mkdir -p "$(PREFIX)/lib/$(srcdir)/"
-	cp $(dstdir)/libcutils.o       "$(PREFIX)/lib/$(srcdir)/"
-	cp $(dstdir)/libcutils-check.o "$(PREFIX)/lib/$(srcdir)/"
-	cp $(dstdir)/libcutils-net.o   "$(PREFIX)/lib/$(srcdir)/"
+	cp $(dstdir)/libcutils.o       "$(PREFIX)/lib/libcutils.a"
+	cp $(dstdir)/libcutils-check.o "$(PREFIX)/lib/libcutils-check.a"
+	cp $(dstdir)/libcutils-net.o   "$(PREFIX)/lib/libcutils-net.a"
 	mkdir -p "$(PREFIX)/include/$(srcdir)/check/"
 	mkdir -p "$(PREFIX)/include/$(srcdir)/net/"
 	cp $(srcdir)/*.h       "$(PREFIX)/include/$(srcdir)/"
@@ -73,14 +72,13 @@ install:
 	cp $(srcdir)/net/*.h   "$(PREFIX)/include/$(srcdir)/net/"
 
 uninstall:
-	rm -f "$(PREFIX)/lib/$(srcdir)/libcutils.o"
-	rm -f "$(PREFIX)/lib/$(srcdir)/libcutils-check.o"
-	rm -f "$(PREFIX)/lib/$(srcdir)/libcutils-net.o"
-	rmdir "$(PREFIX)/lib/$(srcdir)/"          2>/dev/null || true
-	rm -f "$(PREFIX)/include/$(srcdir)/net/"*.h
-	rm -f "$(PREFIX)/include/$(srcdir)/check/"*.h
-	rm -f "$(PREFIX)/include/$(srcdir)/"*.h
-	rmdir "$(PREFIX)/include/$(srcdir)/net"   2>/dev/null || true
-	rmdir "$(PREFIX)/include/$(srcdir)/check" 2>/dev/null || true
-	rmdir "$(PREFIX)/include/$(srcdir)"       2>/dev/null || true
+	rm "$(PREFIX)/lib/libcutils.a"
+	rm "$(PREFIX)/lib/libcutils-check.a"
+	rm "$(PREFIX)/lib/libcutils-net.a"
+	rm "$(PREFIX)/include/$(srcdir)/net/"*.h
+	rm "$(PREFIX)/include/$(srcdir)/check/"*.h
+	rm "$(PREFIX)/include/$(srcdir)/"*.h
+	rmdir "$(PREFIX)/include/$(srcdir)/net"   2>/dev/null
+	rmdir "$(PREFIX)/include/$(srcdir)/check" 2>/dev/null
+	rmdir "$(PREFIX)/include/$(srcdir)"       2>/dev/null
 
