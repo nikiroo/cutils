@@ -1,14 +1,14 @@
 NAME   = cutils
 dstdir = bin
 
-.PHONY: all build rebuild run clean mrpropre mrpropre love debug doc man \
+.PHONY: all run clean mrpropre mrpropre love debug doc man \
 	test tests run-test run-tests run-test-more run-tests-more \
-	mess-build mess-run mess-clean mess-propre mess-doc mess-man \
+	mess-run mess-clean mess-propre mess-doc mess-man \
 	mess-test mess-run-test mess-run-test-more \
 	$(NAME) utils net check \
 	MK MKTEST MKMAN
 
-all: build
+all: $(NAME)
 
 # Sub makes:
 MK:
@@ -27,11 +27,6 @@ check: MK
 # Run
 run: mess-run
 	@echo Nothing to run, this is a library
-
-# Build/rebuild
-build: mess-build $(NAME)
-	@echo Build successful.
-rebuild: clean build
 
 # Test + run test
 tests: test
@@ -62,8 +57,6 @@ install: mess-install MK MKMAN
 uninstall: mess-uninstall MK MKMAN
 
 # Messages
-mess-build:
-	@echo ">>>>>>>>>> Building $(NAME)..."
 mess-run:
 	@echo ">>>>>>>>>> Running $(NAME)..."
 	@echo
