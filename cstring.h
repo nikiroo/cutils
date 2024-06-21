@@ -198,6 +198,22 @@ int cstring_addn(cstring_t *self, const char source[], size_t n);
 int cstring_addfn(cstring_t *self, const char source[], size_t idx, size_t n);
 
 /**
+ * Add a string (a sequence of char that MAY end with '\0') at the end of the
+ * given cstring, starting from index, N chars long (even if the source 
+ * string contains '\0' characters).
+ *
+ * @param self the string to work on
+ * @param source the string to add
+ * @param idx the starting index at which to copy from the source
+ * @param n the number of chars to add (excluding the NUL byte) or 0
+ * 		to add the whole source (which MUST then end with a '\0')
+ *
+ * @return TRUE if success (FALSE means it was unable to grow due to memory
+ * 		pressure)
+ */
+int cstring_addfN(cstring_t *self, const char source[], size_t idx, size_t n);
+
+/**
  * Add a string via the usual <tt>printf</tt> formatters.
  *
  * @param self the string to add to
@@ -397,6 +413,16 @@ void cstring_trim(cstring_t *self, char car);
  * @return the new length of the string
  */
 size_t cstring_remove_crlf(char *self);
+
+/**
+ * Remove the \r and \n sequence (or one OR the other) at the end of the string.
+ *
+ * @param self the string to change
+ * @param sz the current size of the string
+ *
+ * @return the new length of the string
+ */
+size_t cstring_remove_crlf_sz(char *self, size_t sz);
 
 /**
  * Change the case to upper-case (UTF-8 compatible, but the string MUST be

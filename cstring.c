@@ -58,6 +58,9 @@ static void cstring_swap(cstring_t *a, cstring_t *b);
 static void cstring_change_case(cstring_t *self, int up);
 /** For path-related functions */
 static void normalize_path(cstring_t *self);
+/** Actual implemenation of both addfn and addfN */
+static int cstring_addfNn(cstring_t *self, const char source[], size_t idx, 
+		size_t n, int force_n);
 
 // Private variables
 
@@ -186,25 +189,34 @@ int cstring_add_car(cstring_t *self, char source) {
 }
 
 int cstring_add(cstring_t *self, const char source[]) {
-	return cstring_addf(self, source, 0);
+	return cstring_addfNn(self, source, 0, 0, 0);
 }
 
 int cstring_addf(cstring_t *self, const char source[], size_t idx) {
-	return cstring_addfn(self, source, idx, 0);
+	return cstring_addfNn(self, source, idx, 0, 0);
 }
 
 int cstring_addn(cstring_t *self, const char source[], size_t n) {
-	return cstring_addfn(self, source, 0, n);
+	return cstring_addfNn(self, source, 0, n, 0);
 }
 
 int cstring_addfn(cstring_t *self, const char source[], size_t idx, size_t n) {
+	return cstring_addfNn(self, source, idx, n, 0);
+}
+
+int cstring_addfN(cstring_t *self, const char source[], size_t idx, size_t n) {
+	return cstring_addfNn(self, source, idx, n, 1);
+}
+
+int cstring_addfNn(cstring_t *self, const char source[], size_t idx, size_t n,
+		int force_n) {
 	size_t ss;
 
 	ss = strlen(source);
 	if (source && ss > idx && idx >= 0) {
 		ss -= idx;
 
-		if (n && n < ss)
+		if (n && (force_n || (n < ss)))
 			ss = n;
 
 		if (ss) {
@@ -527,6 +539,10 @@ void cstring_trim(cstring_t *self, char car) {
 
 size_t cstring_remove_crlf(char *self) {
 	size_t sz = strlen(self);
+	return cstring_remove_crlf_sz(self, sz);
+}
+
+size_t cstring_remove_crlf_sz(char *self, size_t sz) {
 	if (sz && self[sz - 1] == '\n')
 		sz--;
 	if (sz && self[sz - 1] == '\r')
@@ -626,32 +642,52 @@ int cstring_readline(cstring_t *self, FILE *file) {
 	if (!file)
 		return 0;
 
-	buffer[BUFFER_SIZE - 1] = '\0'; // just in case
-
 	if (!feof(file)) {
+		// Allow '\0' in data (1/4)
+		//buffer[BUFFER_SIZE - 1] = '\0'; // just in case
+		memset(buffer, ~0, BUFFER_SIZE);
+
 		cstring_clear(self);
 		buffer[0] = '\0';
 
 		// Note: fgets() could return NULL if EOF is reached
 		if (!fgets(buffer, (int) BUFFER_SIZE - 1, file))
 			return 0;
+		
+		// Allow '\0' in data (2/4)
+		//size = strlen(buffer);
+		size = BUFFER_SIZE;
+		while(size && buffer[size - 1])
+			size--;
+		if (size)
+			size--;
 
-		size = strlen(buffer);
 		full_line = ((file && feof(file)) || size == 0
 				|| buffer[size - 1] == '\n');
-		size = cstring_remove_crlf(buffer);
-		cstring_add(self, buffer);
+		size = cstring_remove_crlf_sz(buffer, size);
+		cstring_addfN(self, buffer, 0, size);
 
 		// No luck, we need to continue getting data
 		while (!full_line) {
+			// Allow '\0' in data (3/4)
+			//buffer[BUFFER_SIZE - 1] = '\0'; // just in case
+			memset(buffer, ~0, BUFFER_SIZE);
+			
 			if (!fgets(buffer, (int) BUFFER_SIZE - 1, file))
 				break;
 
-			size = strlen(buffer);
+			// Allow '\0' in data (4/4)
+			//size = strlen(buffer);
+			size = BUFFER_SIZE;
+			while(size && buffer[size - 1])
+				size--;
+			if (size)
+				size--;
+			
 			full_line = ((file && feof(file)) || size == 0
 					|| buffer[size - 1] == '\n');
-			size = cstring_remove_crlf(buffer);
-			cstring_add(self, buffer);
+			size = cstring_remove_crlf_sz(buffer, size);
+			cstring_addfN(self, buffer, 0, size);
 		}
 
 		return 1;
