@@ -71,16 +71,17 @@ size_t strnlen(const char *s, size_t maxlen);
  */
 char *strdup(const char *source);
 #endif
-//#if _POSIX_C_SOURCE < 200809L
-//#ifndef _GNU_SOURCE
+#if _POSIX_C_SOURCE < 200809L
+#ifndef _GNU_SOURCE
+#include <sys/types.h>
 /**
  * getline() reads an entire line from stream, storing the address of the
  * buffer containing the text into *lineptr.  The buffer is null-
  * terminated and includes the newline character, if one was found.
  */
 ssize_t getline(char **strp, size_t *n, FILE *f);
-//#endif
-//#endif
+#endif
+#endif
 
 /* */
 
