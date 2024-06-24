@@ -590,7 +590,9 @@ void cstring_change_case(cstring_t *self, int up) {
 
 	size_t i = 0;
 	while (i < self->length) {
-		count = mbrtowc(&wide, self->string + i, self->length - i, &state_from);
+		count = mbrtowc(&wide, 
+				self->string + i, self->length - i, 
+				&state_from);
 
 		//incomplete (should not happen)
 		if (count == (size_t) -2) {

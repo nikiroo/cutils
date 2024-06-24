@@ -38,6 +38,8 @@ size_t strnlen(const char *s, size_t maxlen) {
 char *strdup(const char *source) {
 	size_t sz = strlen(source);
 	char *new = malloc((sz + 1) * sizeof(char));
+	if (!new)
+		return NULL;
 	strcpy(new, source);
 	return new;
 }
