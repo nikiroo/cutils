@@ -648,7 +648,7 @@ int cstring_readline(cstring_t *self, FILE *file) {
 	}
 	
 	cstring_clear(self);
-	return 0;
+	return !feof(file);
 }
 
 static void normalize_path(cstring_t *self) {
