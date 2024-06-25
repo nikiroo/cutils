@@ -109,6 +109,31 @@ void test_failure() {
 			stop_color());
 }
 
+void assert_str(const char title[], const char expected[], 
+		const char received[]) {
+	if (strcmp(expected, received)) {
+		failure("%s\n\tExpected: <%s>\n\tReceived: <%s>",
+			title, expected, received
+		);
+	}
+}
+
+void assert_int(const char title[], long long expected, long long received) {
+	if (received != expected) {
+		failure("%s\n\tExpected: %lld\n\tReceived: %lld",
+			title, expected, received
+		);
+	}
+}
+
+void assert_sz(const char title[], size_t expected, size_t received) {
+	if (received != expected) {
+		failure("%s\n\tExpected: %zu\n\tReceived: %zu",
+			title, expected, received
+		);
+	}
+}
+
 int test_start(int more) {
 	int failed;
 	SRunner *runner;

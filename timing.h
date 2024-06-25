@@ -36,23 +36,50 @@ extern "C" {
 
 #include <sys/time.h>
 
-/**
- * Start the timer.
- */
-#define TIMING_START struct timeval TIMING_start, TIMING_stop; \
-	/* 1 usec = 0.000001 s */ \
-	char cusec[7]; \
-	gettimeofday(&TIMING_start, NULL);
+typedef struct {
+	struct timeval start;
+	struct timeval stop;
+	size_t sec;
+	int msec;
+	int usec;
+} timing_t;
 
 /**
- * Stop the timer and print the elapsed time to stdout.
+ * Start the timing.
  */
-#define TIMING_STOP gettimeofday(&TIMING_stop, NULL); \
-	TIMING_stop.tv_sec  = TIMING_stop.tv_sec  - TIMING_start.tv_sec; \
-	TIMING_stop.tv_usec = TIMING_stop.tv_usec - TIMING_start.tv_usec; \
-	sprintf(cusec, "%0.6d", TIMING_stop.tv_usec); \
-	printf("TIME: %d.%s sec\n", TIMING_stop.tv_sec, cusec); \
-	gettimeofday(&TIMING_start, NULL);
+#define TIMING_START(timing) \
+	timing_t timing; \
+	gettimeofday(&(timing.start), NULL); \
+	timing.sec = timing.msec = timing.usec = 0; \
+	timing.stop.tv_sec = 0; \
+	timing.stop.tv_usec = 0; \
+while(0)
+
+/**
+ * Stop the timing and return the elapsed time in milliseconds into msec.
+ */
+#define TIMING_STOP(timing) \
+	gettimeofday(&(timing.stop), NULL); \
+	if (timing.stop.tv_usec >= timing.start.tv_usec) { \
+		timing.sec = timing.stop.tv_sec - timing.start.tv_sec; \
+		timing.usec = timing.stop.tv_usec - timing.start.tv_usec; \
+	} else { \
+		timing.sec = (timing.stop.tv_sec - timing.start.tv_sec) - 1; \
+		timing.usec = timing.start.tv_usec - timing.stop.tv_usec; \
+	} \
+	timing.msec = timing.usec / 1000; \
+	timing.usec = timing.usec % 1000; \
+	gettimeofday(&(timing.start), NULL); \
+while(0)
+
+/**
+ * Stop the timing and print the elapsed time.
+ */
+#define TIMING_PRINT(timing) \
+	TIMING_STOP(timing); \
+	printf("TIME: %zu.%03d%03d sec\n", \
+		timing.sec, timing.msec, timing.usec); \
+while(0)
 
 #endif // TIMING_H
 
