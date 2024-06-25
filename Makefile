@@ -2,7 +2,7 @@ NAME   = cutils
 dstdir = bin
 
 .PHONY: all run clean mrpropre mrpropre love debug doc man \
-	test tests run-test run-tests run-test-more run-tests-more \
+	test run-test run-test-more \
 	mess-run mess-clean mess-propre mess-doc mess-man \
 	mess-test mess-run-test mess-run-test-more \
 	$(NAME) utils net check \
@@ -11,12 +11,13 @@ dstdir = bin
 all: $(NAME)
 
 # Sub makes:
+M_OPTS=$(MAKECMDGOALS) --no-print-directory PREFIX=$(PREFIX)
 MK:
-	@$(MAKE) -C src/$(NAME) $(MAKECMDGOALS) DEBUG=$(DEBUG)
+	@$(MAKE) -C src/$(NAME) $(M_OPTS) DEBUG=$(DEBUG)
 MKTEST:
-	@$(MAKE) -C src/tests   $(MAKECMDGOALS) DEBUG=$(DEBUG)
+	@$(MAKE) -C src/tests   $(M_OPTS) DEBUG=$(DEBUG)
 MKMAN:
-	@$(MAKE) -f man.d       $(MAKECMDGOALS) NAME=$(NAME) PREFIX=$(PREFIX)
+	@$(MAKE) -f man.d       $(M_OPTS) NAME=$(NAME)
 
 # Main buildables
 $(NAME): utils net check
@@ -29,11 +30,8 @@ run: mess-run
 	@echo Nothing to run, this is a library
 
 # Test + run test
-tests: test
 test: mess-test MKTEST
-run-tests: run-test
 run-test: mess-run-test MKTEST
-run-tests-more: run-test-more
 run-test-more: mess-run-test-more MKTEST
 
 # Doc/man/misc
@@ -43,7 +41,7 @@ man: mess-man MKMAN
 love:
 	@echo " ...not war."
 debug:
-	$(MAKE) DEBUG=1
+	$(MAKE) $(M_OPTS) DEBUG=1
 
 # Clean
 clean: mess-clean MK MKTEST
@@ -72,10 +70,8 @@ mess-test:
 	@echo ">>>>>>>>>> Building tests for $(NAME)..."
 mess-run-test:
 	@echo ">>>>>>>>>> Running tests on $(NAME)..."
-	@echo
 mess-run-test-more:
 	@echo ">>>>>>>>>> Running more tests on $(NAME)..."
-	@echo
 mess-install:
 	@echo ">>>>>>>>>> Installing $(NAME) into $(PREFIX)..."
 mess-uninstall:

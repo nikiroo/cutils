@@ -15,25 +15,38 @@ endif
 .PHONY: all install uninstall clean mrpropre mrpropre \
 	test run run-test run-test-more
 
+SOURCES=$(wildcard $(srcdir)/*.c)
+HEADERS=$(wildcard $(srcdir)/*.h)
+OBJECTS=$(SOURCES:%.c=%.o)
+
+################
+# Dependencies #
+################
+OBJECTS+=$(dstdir)/libcutils.o
+OBJECTS+=$(dstdir)/libcutils-check.o
+$(dstdir)/libcutils.o:
+	$(MAKE) --no-print-directory -C cutils/ utils
+$(dstdir)/libcutils-check.o:
+	$(MAKE) --no-print-directory -C cutils/ check
+################
+
 all: test
 
 test: $(dstdir)/tests
 
 run: run-test
 run-test: test
-	$(dstdir)/tests
+	@echo
+	@$(dstdir)/tests
 
 run-test-more: test
-	$(dstdir)/tests --more
+	@echo
+	@$(dstdir)/tests --more
 
-SOURCES=$(wildcard $(srcdir)/*.c)
-HEADERS=$(wildcard $(srcdir)/*.h)
-OBJECTS=$(SOURCES:%.c=%.o)
-OBJECTS+=$($(dstdir)/libcutils.o)
 
-$(dstdir)/tests: $(OBJECTS) $(dstdir)/libcutils-check.o
+$(dstdir)/tests: $(OBJECTS)
 	mkdir -p $(dstdir)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) $(dstdir)/libcutils-check.o -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@
 
 clean:
 	rm -f $(srcdir)/*.o
