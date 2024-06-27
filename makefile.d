@@ -3,7 +3,7 @@
 
 NAME   = cutils
 NAMES  = $(NAME) check net
-srcdir = cutils
+srcdir = $(NAME)
 dstdir = ../bin
 
 CFLAGS   += -Wall -pedantic -I./ -std=gnu99
