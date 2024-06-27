@@ -11,7 +11,7 @@ dstdir = bin
 	test run-test run-test-more \
 	mess-build mess-run mess-clean mess-propre mess-doc mess-man \
 	mess-test mess-run-test mess-run-test-more \
-	$(NAMES)
+	$(NAMES) $(TESTS)
 
 all: build
 
