@@ -1,23 +1,33 @@
 # Note: 99+ required for for-loop initial declaration (CentOS 6)
 
-srcdir = tests
+NAME   = tests-cutils
+srcdir = $(NAME)
 dstdir = ../bin
 
 CFLAGS   += -Wall -pedantic -I./ -std=c99
 CXXFLAGS += -Wall -pedantic -I./
 LDFLAGS  += -lcheck
+PREFIX   =  /usr/local
 
 ifdef DEBUG
 CFLAGS   += -ggdb -O0
 CXXFLAGS += -ggdb -O0
 endif
 
-.PHONY: all install uninstall clean mrpropre mrpropre \
-	test run run-test run-test-more
+.PHONY: all build install uninstall clean mrpropre mrpropre \
+	$(NAME) test run run-test run-test-more
 
 SOURCES=$(wildcard $(srcdir)/*.c)
 HEADERS=$(wildcard $(srcdir)/*.h)
 OBJECTS=$(SOURCES:%.c=%.o)
+
+# Main target
+
+all: build
+
+build: $(NAME)
+
+$(NAME): $(dstdir)/$(NAME)
 
 ################
 # Dependencies #
@@ -25,34 +35,31 @@ OBJECTS=$(SOURCES:%.c=%.o)
 OBJECTS+=$(dstdir)/libcutils.o
 OBJECTS+=$(dstdir)/libcutils-check.o
 $(dstdir)/libcutils.o:
-	$(MAKE) --no-print-directory -C cutils/ utils
+	$(MAKE) --no-print-directory -C cutils/ cutils
 $(dstdir)/libcutils-check.o:
 	$(MAKE) --no-print-directory -C cutils/ check
 ################
 
-all: test
-
-test: $(dstdir)/tests
-
-run: run-test
-run-test: test
-	@echo
-	@$(dstdir)/tests
-
-run-test-more: test
-	@echo
-	@$(dstdir)/tests --more
-
-
-$(dstdir)/tests: $(OBJECTS)
+$(dstdir)/$(NAME): $(OBJECTS)
 	mkdir -p $(dstdir)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@
 
+# Test program, so running = running tests
+run: run-test
+test: build
+
+run-test: test
+	@echo
+	@$(dstdir)/$(NAME)
+run-test-more: test
+	@echo
+	@$(dstdir)/($NAME) --more
+
 clean:
-	rm -f $(srcdir)/*.o
+	rm -f $(srcdir)/*.o $(srcdir)/*/*.o
 
 mrproper: mrpropre
 mrpropre: clean
-	rm -f $(dstdir)/tests
+	rm -f $(dstdir)/$(NAME)
 	rmdir $(dstdir) 2>/dev/null || true
 

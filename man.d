@@ -47,8 +47,10 @@ mrpropre:
 
 install:
 	@if [ -e "man/man1/$(NAME).1" ]; then \
-		echo cp -r man/ "$(PREFIX)"/share/; \
-		cp -r man/ "$(PREFIX)"/share/; \
+		echo mkdir -p "$(PREFIX)"/share/man; \
+		mkdir -p "$(PREFIX)"/share/man; \
+		echo cp -r man "$(PREFIX)"/share/; \
+		cp -r man "$(PREFIX)"/share/; \
 	else \
 		echo "No manual has been built (see \`make man')"; \
 	fi
@@ -59,6 +61,9 @@ uninstall:
 			echo rm "$(PREFIX)/share/$$page";\
 			rm "$(PREFIX)/share/$$page";\
 		done; \
+		echo rmdir "$(PREFIX)/share/man" 2>/dev/null \|\| true; \
+		rmdir "$(PREFIX)/share/man" 2>/dev/null || true; \
+		rmdir "$(PREFIX)/share"     2>/dev/null || true; \
 	else \
 		echo "No manual has been built (see \`make man')"; \
 	fi
