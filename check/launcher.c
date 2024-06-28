@@ -153,7 +153,7 @@ int test_start(int more) {
 	return failed;
 }
 
-int main(int argc, char **argv) {
+int launch_tests(int argc, char **argv) {
 	int more = 0;
 	int cont = 1;
 
