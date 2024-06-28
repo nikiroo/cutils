@@ -53,7 +53,7 @@ run-test: test
 	@$(dstdir)/$(NAME)
 run-test-more: test
 	@echo
-	@$(dstdir)/($NAME) --more
+	@$(dstdir)/$(NAME) --more
 
 clean:
 	rm -f $(srcdir)/*.o $(srcdir)/*/*.o
