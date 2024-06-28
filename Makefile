@@ -1,10 +1,14 @@
+#
+# Simple makefile that will forward all commands to src/xxx
+# > NAME: main program (for 'man' and 'run')
+# > NAMES: list of all the programs to compile
+# > TESTS: list of all test programs to compile and run
+#
 NAME   = cutils
 NAMES  = $(NAME)
-TEST   = tests-cutils
-TESTS  = $(TEST)
+TESTS  = tests-cutils
 
-PREFIX =  /usr/local
-
+PREFIX = /usr/local
 dstdir = bin
 
 .PHONY: all build run clean mrpropre mrpropre love debug doc man \
@@ -26,15 +30,14 @@ $(NAMES) $(TESTS):
 
 # Manual
 man: mess-man
-	@$(MAKE) -f man.d $(M_OPTS) NAME=$(NAME)
+	@$(MAKE) -f man.d $(MAKECMDGOALS) NAME=$(NAME)
 
 # Run
-run: mess-run
-	@echo Nothing to run, this is a library
+run: mess-run $(NAME)
 
 # Run main test
-run-test: mess-run-test $(TEST)
-run-test-more: mess-run-test-more $(TEST)
+run-test: mess-run-test $(TESTS)
+run-test-more: mess-run-test-more $(TESTS)
 
 # Doc/man/misc
 doc: mess-doc
@@ -42,18 +45,18 @@ doc: mess-doc
 love:
 	@echo " ...not war."
 debug:
-	$(MAKE) $(M_OPTS) DEBUG=1
+	$(MAKE) $(MAKECMDGOALS) PREFIX=$(PREFIX) NAME=$(NAME) DEBUG=1
 
 # Clean
-clean: mess-clean $(NAMES) $(TESTS)
+clean: mess-clean $(TESTS) $(NAMES)
 mrproper: mrpropre
-mrpropre: mess-propre $(NAMES) $(TESTS) man
+mrpropre: mess-propre $(TESTS) $(NAMES) man
 	rm -rf doc/html doc/latex doc/man
 	rmdir doc 2>/dev/null || true
 
 # Install/uninstall
-install: mess-install $(NAME) man
-uninstall: mess-uninstall $(NAME) man
+install: mess-install $(NAMES) man
+uninstall: mess-uninstall $(NAMES) man
 
 # Messages
 mess-build:
@@ -64,7 +67,7 @@ mess-run:
 	@echo ">>>>>>>>>> Running $(NAME)..."
 mess-clean:
 	@echo
-	@echo ">>>>>>>>>> Cleaning $(NAME)..."
+	@echo ">>>>>>>>>> Cleaning $(NAMES) $(TESTS)..."
 mess-propre:
 	@echo
 	@echo ">>>>>>>>>> Calling Mr Propre..."
@@ -73,16 +76,16 @@ mess-doc:
 	@echo ">>>>>>>>>> Generating documentation for $(NAME)..."
 mess-man:
 	@echo
-	@echo ">>>>>>>>>> Generating the manual of $(NAME)..."
+	@echo ">>>>>>>>>> Manual of $(NAME): $(MAKECMDGOALS)..."
 mess-test:
 	@echo
 	@echo ">>>>>>>>>> Building all tests: $(TESTS)..."
 mess-run-test:
 	@echo
-	@echo ">>>>>>>>>> Running tests: $(TEST)..."
+	@echo ">>>>>>>>>> Running tests: $(TESTS)..."
 mess-run-test-more:
 	@echo
-	@echo ">>>>>>>>>> Running more tests: $(TEST)..."
+	@echo ">>>>>>>>>> Running more tests: $(TESTS)..."
 mess-install:
 	@echo
 	@echo ">>>>>>>>>> Installing $(NAME) into $(PREFIX)..."
