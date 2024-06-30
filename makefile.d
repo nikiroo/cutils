@@ -53,7 +53,7 @@ DEPENDS+=$(SOURCES_check:%.c=%.d)
 DEPENDS+=$(SOURCES_net:%.c=%.d)
 -include $(DEPENDS)
 %.o: %.c
-	$(CC) $(CCFLAGS) -MMD -MP -c $< -o $@
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 ################
 
 $(dstdir)/libcutils.o: $(DEPS) $(OBJECTS_cutils)
