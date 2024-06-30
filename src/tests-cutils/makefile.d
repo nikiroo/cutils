@@ -42,7 +42,7 @@ DEPS=$(dstdir)/libcutils.o $(dstdir)/libcutils-check.o
 DEPENDS=$(SOURCES:%.c=%.d)
 -include $(DEPENDS)
 %.o: %.c
-	$(CC) $(CCFLAGS) -MMD -MP -c $< -o $@
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 ################
 
 $(dstdir)/$(NAME): $(DEPS) $(OBJECTS)
@@ -55,10 +55,10 @@ test: build
 
 run-test: test
 	@echo
-	@$(dstdir)/$(NAME)
+	$(dstdir)/$(NAME)
 run-test-more: test
 	@echo
-	@$(dstdir)/$(NAME) --more
+	$(dstdir)/$(NAME) --more
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS)
