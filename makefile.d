@@ -4,7 +4,10 @@
 NAME   = cutils
 NAMES  = $(NAME) check net
 srcdir = $(NAME)
-dstdir = ../bin
+
+ifeq ($(dstdir),)
+dstdir = $(srcdir)/bin
+endif
 
 CFLAGS   += -Wall -pedantic -I./ -std=gnu99
 CXXFLAGS += -Wall -pedantic -I./
@@ -17,7 +20,7 @@ CXXFLAGS += -ggdb -O0
 endif
 
 .PHONY: all build install uninstall clean mrpropre mrpropre \
-	$(NAMES)
+	$(NAMES) deps test run run-test run-test-more
 
 SOURCES_cutils=$(wildcard $(srcdir)/*.c)
 OBJECTS_cutils=$(SOURCES_cutils:%.c=%.o)
@@ -36,7 +39,8 @@ cutils: deps $(dstdir)/libcutils.o
 check:  deps $(dstdir)/libcutils-check.o
 net:    deps $(dstdir)/libcutils-net.o
 
-run:
+# Library, nothing to run nor test
+test run run-test run-test-more:
 	@echo CUtils is a library, look at the tests instead
 
 ################
@@ -79,36 +83,36 @@ clean:
 	rm -f $(OBJECTS_check)
 	rm -f $(OBJECTS_net)
 	rm -f $(DEPENDS)
+	rm -f $(DEPS)
 
 mrproper: mrpropre
-
 mrpropre: clean
 	rm -f $(dstdir)/libcutils.o
 	rm -f $(dstdir)/libcutils-check.o 
 	rm -f $(dstdir)/libcutils-net.o
 	rmdir $(dstdir) 2>/dev/null || true
 
-install: 
+install: build
 	mkdir -p "$(PREFIX)/lib"
-	cp $(dstdir)/libcutils.o       "$(PREFIX)/lib/libcutils.a"
-	cp $(dstdir)/libcutils-check.o "$(PREFIX)/lib/libcutils-check.a"
-	cp $(dstdir)/libcutils-net.o   "$(PREFIX)/lib/libcutils-net.a"
+	cp "$(dstdir)/libcutils.o"       "$(PREFIX)/lib/libcutils.a"
+	cp "$(dstdir)/libcutils-check.o" "$(PREFIX)/lib/libcutils-check.a"
+	cp "$(dstdir)/libcutils-net.o"   "$(PREFIX)/lib/libcutils-net.a"
 	mkdir -p "$(PREFIX)/include/$(srcdir)/check/"
 	mkdir -p "$(PREFIX)/include/$(srcdir)/net/"
-	cp $(srcdir)/*.h       "$(PREFIX)/include/$(srcdir)/"
-	cp $(srcdir)/check/*.h "$(PREFIX)/include/$(srcdir)/check/"
-	cp $(srcdir)/net/*.h   "$(PREFIX)/include/$(srcdir)/net/"
+	cp "$(srcdir)"/*.h       "$(PREFIX)/include/$(srcdir)/"
+	cp "$(srcdir)"/check/*.h "$(PREFIX)/include/$(srcdir)/check/"
+	cp "$(srcdir)"/net/*.h   "$(PREFIX)/include/$(srcdir)/net/"
 
-uninstall:
+uninstall: build
 	rm "$(PREFIX)/lib/libcutils.a"
 	rm "$(PREFIX)/lib/libcutils-check.a"
 	rm "$(PREFIX)/lib/libcutils-net.a"
-	rmdir "$(PREFIX)/lib/"                    2>/dev/null
+	rmdir "$(PREFIX)/lib"                     2>/dev/null
 	rm "$(PREFIX)/include/$(srcdir)/net/"*.h
 	rm "$(PREFIX)/include/$(srcdir)/check/"*.h
 	rm "$(PREFIX)/include/$(srcdir)/"*.h
 	rmdir "$(PREFIX)/include/$(srcdir)/net"   2>/dev/null
 	rmdir "$(PREFIX)/include/$(srcdir)/check" 2>/dev/null
 	rmdir "$(PREFIX)/include/$(srcdir)"       2>/dev/null
-	rmdir "$(PREFIX)/include/"                2>/dev/null
+	rmdir "$(PREFIX)/include"                 2>/dev/null
 
