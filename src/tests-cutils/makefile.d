@@ -19,7 +19,6 @@ endif
 	$(NAME) deps test run run-test run-test-more
 
 SOURCES=$(wildcard $(srcdir)/*.c)
-HEADERS=$(wildcard $(srcdir)/*.h)
 OBJECTS=$(SOURCES:%.c=%.o)
 
 # Main target
