@@ -19,9 +19,12 @@ endif
 .PHONY: all build install uninstall clean mrpropre mrpropre \
 	$(NAMES)
 
-SOURCES=$(wildcard $(srcdir)/*.c)
-HEADERS=$(wildcard $(srcdir)/*.h)
-OBJECTS=$(SOURCES:%.c=%.o)
+SOURCES_cutils=$(wildcard $(srcdir)/*.c)
+OBJECTS_cutils=$(SOURCES_cutils:%.c=%.o)
+SOURCES_check =$(wildcard $(srcdir)/check/*.c)
+OBJECTS_check =$(SOURCES_check:%.c=%.o)
+SOURCES_net   =$(wildcard $(srcdir)/net/*.c)
+OBJECTS_net   =$(SOURCES_net:%.c=%.o)
 
 # Main targets
 
@@ -29,40 +32,53 @@ all: build
 
 build: $(NAMES)
 
-cutils: $(dstdir)/libcutils.o
-check: $(dstdir)/libcutils-check.o
-net: $(dstdir)/libcutils-net.o
+cutils: deps $(dstdir)/libcutils.o
+check:  deps $(dstdir)/libcutils-check.o
+net:    deps $(dstdir)/libcutils-net.o
+
+run:
+	@echo CUtils is a library, look at the tests instead
 
 ################
 # Dependencies #
 ################
-# OBJECTS+=$(dstdir)/libcutils.o
-# $(dstdir)/libcutils.o:
-# 	$(MAKE) --no-print-directory -C cutils/ cutils
-$(srcdir)/array.o:   $(srcdir)/array.[ch]
-$(srcdir)/desktop.o: $(srcdir)/desktop.[ch] $(srcdir)/array.h
+# ## Libs (if needed)
+deps:
+#	$(MAKE) --no-print-directory -C cutils/ cutils
+# DEPS=$(dstdir)/libcutils.o
+
+## Headers
+DEPENDS =$(SOURCES_cutils:%.c=%.d)
+DEPENDS+=$(SOURCES_check:%.c=%.d)
+DEPENDS+=$(SOURCES_net:%.c=%.d)
+-include $(DEPENDS)
+%.o: %.c
+	$(CC) $(CCFLAGS) -MMD -MP -c $< -o $@
 ################
 
-$(dstdir)/libcutils.o: $(OBJECTS)
+$(dstdir)/libcutils.o: $(DEPS) $(OBJECTS_cutils)
 	mkdir -p $(dstdir)
 	# note: -r = --relocatable, but former also works with Clang
-	$(LD) -r $(OBJECTS) -o $@
+	$(LD) -r $(DEPS) $(OBJECTS_cutils) -o $@
 
-$(dstdir)/libcutils-check.o: $(srcdir)/check/launcher.o
+$(dstdir)/libcutils-check.o: $(DEPS) $(OBJECTS_check)
 	mkdir -p $(dstdir)
 	# note: -r = --relocatable, but former also works with Clang
-	$(LD) -r $(srcdir)/check/launcher.o -o $@
+	$(LD) -r $(DEPS) $(OBJECTS_check) -o $@
 
-$(dstdir)/libcutils-net.o: $(srcdir)/net/net.o
+$(dstdir)/libcutils-net.o: $(DEPS) $(OBJECTS_net)
 	mkdir -p $(dstdir)
 	# note: -r = --relocatable, but former also works with Clang
-	$(LD) -r $(srcdir)/net/net.o -o $@
+	$(LD) -r $(DEPS) $(OBJECTS_net) -o $@
 
 debug: 
 	$(MAKE) -f $(srcdir)/makefile.d DEBUG=1
 
 clean:
-	rm -f $(srcdir)/*.o $(srcdir)/*/*.o
+	rm -f $(OBJECTS_cutils)
+	rm -f $(OBJECTS_check)
+	rm -f $(OBJECTS_net)
+	rm -f $(DEPENDS)
 
 mrproper: mrpropre
 
