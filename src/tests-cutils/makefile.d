@@ -1,6 +1,7 @@
 # Note: 99+ required for for-loop initial declaration (CentOS 6)
 
 NAME   = tests-cutils
+NAMES  = $(NAME)
 srcdir = $(NAME)
 dstdir = ../bin
 
@@ -15,7 +16,7 @@ CXXFLAGS += -ggdb -O0
 endif
 
 .PHONY: all build install uninstall clean mrpropre mrpropre \
-	$(NAME) test run run-test run-test-more
+	$(NAME) deps test run run-test run-test-more
 
 SOURCES=$(wildcard $(srcdir)/*.c)
 HEADERS=$(wildcard $(srcdir)/*.h)
@@ -25,24 +26,29 @@ OBJECTS=$(SOURCES:%.c=%.o)
 
 all: build
 
-build: $(NAME)
+build: $(NAMES)
 
-$(NAME): $(dstdir)/$(NAME)
+$(NAME): deps $(dstdir)/$(NAME)
 
 ################
 # Dependencies #
 ################
-OBJECTS+=$(dstdir)/libcutils.o
-OBJECTS+=$(dstdir)/libcutils-check.o
-$(dstdir)/libcutils.o:
+## Libs (if needed)
+deps:
 	$(MAKE) --no-print-directory -C cutils/ cutils
-$(dstdir)/libcutils-check.o:
 	$(MAKE) --no-print-directory -C cutils/ check
+DEPS=$(dstdir)/libcutils.o $(dstdir)/libcutils-check.o
+
+## Headers
+DEPENDS=$(SOURCES:%.c=%.d)
+-include $(DEPENDS)
+%.o: %.c
+	$(CC) $(CCFLAGS) -MMD -MP -c $< -o $@
 ################
 
-$(dstdir)/$(NAME): $(OBJECTS)
+$(dstdir)/$(NAME): $(DEPS) $(OBJECTS)
 	mkdir -p $(dstdir)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DEPS) $(OBJECTS) -o $@
 
 # Test program, so running = running tests
 run: run-test
@@ -56,7 +62,7 @@ run-test-more: test
 	@$(dstdir)/$(NAME) --more
 
 clean:
-	rm -f $(srcdir)/*.o $(srcdir)/*/*.o
+	rm -f $(OBJECTS) $(DEPENDS)
 
 mrproper: mrpropre
 mrpropre: clean
