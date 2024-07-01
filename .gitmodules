@@ -1,3 +1,5 @@
 [submodule "src/cutils"]
 	path = src/cutils
-	url = vm:workspace/cutils.git
+	url = git@git.nikiroo.be:workspace/cutils.git
+	branch = subtree
+	update = merge
