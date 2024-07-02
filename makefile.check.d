@@ -10,13 +10,13 @@
 # > PREFIX: where to (un)install (defaults to /usr/local)
 # > DEBUG: define it to build with all debug symbols
 #
-NAME    = cutils
-srcdir  = $(NAME)
-ssrcdir = $(srcdir)
+NAME    = cutils-check
+srcdir  = cutils
+ssrcdir = cutils/check
 
 # Note: c99+ required for for-loop initial declaration (not default in CentOS 6)
 # Note: gnu99 can be required for some projects (i.e.: libcutils-net)
-CFLAGS   += -Wall -pedantic -I./ -std=gnu99
+CFLAGS   += -Wall -pedantic -I./ -std=c99
 CXXFLAGS += -Wall -pedantic -I./
 PREFIX    =  /usr/local
 
