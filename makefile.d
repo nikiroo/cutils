@@ -1,16 +1,16 @@
 #
-# Makefile for C projets
+# Makefile for C libraries
 # > NAME   : the name of the main program (if programs, make a single .d file 
 #            per program, link them up in Makfile and use a $ssrcdir)
 # > srcdir : the source directory
 # > ssrcdir: the sub-sources directory (defaults to $srcdir)
-# > dstdir: the destination directory (defaults to $srcdir/bin)
+# > dstdir : the destination directory (defaults to $srcdir/bin)
 #
 # Environment variables:
 # > PREFIX: where to (un)install (defaults to /usr/local)
 # > DEBUG: define it to build with all debug symbols
 #
-NAME    = program
+NAME    = library
 srcdir  = $(NAME)
 ssrcdir = $(srcdir)
 
@@ -19,9 +19,6 @@ ssrcdir = $(srcdir)
 CFLAGS   += -Wall -pedantic -I./ -std=c99
 CXXFLAGS += -Wall -pedantic -I./
 PREFIX    =  /usr/local
-
-# Required libraries if any:
-# LDFLAGS += -lcheck
 
 # Required *locally compiled* libraries if any:
 # LIBS     = cutils
@@ -36,19 +33,10 @@ ifdef DEBUG
 CFLAGS   += -ggdb -O0
 CXXFLAGS += -ggdb -O0
 endif
-
+  
 # Default target
-.PHONY: all deps
+.PHONY: all
 all:
-
-# locally compiled libs:
-ifneq ($(LIBS),)
-LDFLAGS   += -L$(dstdir)
-LDFLAGS   += $(foreach lib,$(LIBS),-l$(lib))
-endif
-deps:
-	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
-			-C $(lib)/ $(lib) dstdir=$(dstdir))
 
 .PHONY: build rebuild install uninstall clean mrpropre mrpropre \
 	$(NAME) test run run-test run-test-more
@@ -70,19 +58,17 @@ build: $(NAME)
 
 rebuild: clean build
 
-$(NAME): deps $(dstdir)/$(NAME)
+$(NAME): $(dstdir)/lib$(NAME).a
 
-# Program, so no test
-run:
-	@echo
-	$(dstdir)/$(NAME) --help
-test run-test run-test-more:
-	@echo you are in the sources of the program, look at the tests instead
+# Library, so no test and no run
+test run run-test run-test-more:
+	@echo $(NAME) is a library, look at the tests instead
 
-$(dstdir)/$(NAME): $(OBJECTS)
+$(dstdir)/lib$(NAME).a: $(OBJECTS)
 	mkdir -p $(dstdir)
-	# note: LDFLAGS *must* be near the end
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@ $(LDFLAGS)
+	## OLD: #note: -r = --relocatable, but former also works with Clang
+	## OLD: $(LD) -r $(OBJECTS) -o $@ $(LDFLAGS)
+	$(AR) rcs $@ $(OBJECTS)
 
 clean:
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
@@ -94,14 +80,18 @@ mrproper: mrpropre
 mrpropre: clean
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ $@ dstdir=$(dstdir))
-	rm -f $(dstdir)/$(NAME)
+	rm -f $(dstdir)/lib$(NAME).a
 	rmdir $(dstdir) 2>/dev/null || true
 
 install: build
-	mkdir -p "$(PREFIX)/bin"
-	cp "$(dstdir)/$(NAME)" "$(PREFIX)/bin/"
+	mkdir -p "$(PREFIX)/lib"
+	cp "$(dstdir)/lib$(NAME).a" "$(PREFIX)/lib/"
+	cp "$(ssrcdir)"/*.h       "$(PREFIX)/include/$(srcdir)/"
 
 uninstall:
-	rm "$(PREFIX)/bin/$(NAME)"
-	rmdir "$(PREFIX)/bin" 2>/dev/null
+	rm "$(PREFIX)/lib/lib$(NAME).a"
+	rmdir "$(PREFIX)/lib"               2>/dev/null
+	rm "$(PREFIX)/include/$(srcdir)/"*.h
+	rmdir "$(PREFIX)/include/$(srcdir)" 2>/dev/null
+	rmdir "$(PREFIX)/include"           2>/dev/null
 
