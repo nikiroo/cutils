@@ -8,16 +8,18 @@ You may use it in various ways.
 
 Simply clone the repository (branch: master) in your `src/` directory:
 - call **make** with `make -f src/cutils`
+- it will use bin/ as output directory by default (variable dstdir)
 - use `#include "cutils/cutils.h"` (for instance -- notice the double quotes)
-- use the required `.o` file(s): `gcc bin/xxx.o bin/libcutils.o -o bin/my-prog`
+- use the required `.a` file(s): `gcc bin/xxx.o bin/libcutils.a -o bin/my-prog`
+- ...or via `-l`: `gcc bin/xxx.o -o bin/my-prog -lcutils -Lbin/`
 
 Install it on your machine:
 - compile and install it (see **Compilation** below)
 - use `#include <cutils/cutils.h>` (for instance -- notice the square brackets)
 - use one or more of of `-lcutils`, `-lcutils-net` or `-lcutils-check`
 
-Use a local version:
-- locally generate the `.o` files (see **Compilation** below)
+Use a local version merged with your own sources:
+- locally generate the `.a` files (see **Compilation** below)
 - use `#include "cutils/cutils.h"` (for instance -- notice the double quotes)
 - use the required `.o` file(s): `gcc bin/xxx.o bin/libcutils.o -o bin/my-prog`
 
