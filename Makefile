@@ -5,6 +5,6 @@
 default $(MAKECMDGOALS):
 	@for mk in makefile.d makefile.check.d makefile.net.d; do \
 		$(MAKE) --no-print-directory -C ../ -f "$(CURDIR)/$$mk" \
-			$(MAKECMDGOALS);
+			$(MAKECMDGOALS); \
 	done;
 
