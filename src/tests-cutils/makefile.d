@@ -1,10 +1,10 @@
 #
 # Makefile for C test projets
-# > NAME   : the name of the main program (if programs, make a single .d file 
-#            per program, link them up in Makfile and use a $ssrcdir)
-# > srcdir : the source directory
-# > ssrcdir: the sub-sources directory (defaults to $srcdir)
-# > dstdir: the destination directory (defaults to $srcdir/bin)
+# > NAME    : the name of the main program (if programs, make a single .d file 
+#             per program, link them up in Makfile and use a $ssrcdir)
+# > srcdir  : the source directory
+# > ssrcdir : the sub-sources directory (defaults to $srcdir)
+# > dstdir  : the destination directory (defaults to $srcdir/bin)
 #
 # Environment variables:
 # > PREFIX: where to (un)install (defaults to /usr/local)
@@ -21,10 +21,16 @@ CXXFLAGS += -Wall -pedantic -I./
 PREFIX    =  /usr/local
 
 # Required libraries if any:
-LDFLAGS += -lcheck -lcutils-check
+LDFLAGS += -lcutils-check 
+LDFLAGS += -lcheck $(shell pkg-config --libs --clfags check)
 
 # Required *locally compiled* libraries if any:
-LIBS       = cutils
+LIBS     = cutils
+
+# Code to test
+# CODE     = $(NAME)
+# CODEO    = $(NAME)/xxx.o \
+#            $(NAME)/yyy.o
 
 ################################################################################
 
@@ -49,13 +55,17 @@ endif
 deps:
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ dstdir=$(dstdir))
+$(CODEO):
+	$(foreach cod,$(CODE),$(MAKE) --no-print-directory \
+			-C $(cod)/ dstdir=$(dstdir))
 
 .PHONY: build rebuild install uninstall clean mrpropre mrpropre \
 	$(NAME) test run run-test run-test-more
 
-SOURCES=$(wildcard $(ssrcdir)/*.c)
-OBJECTS=$(SOURCES:%.c=%.o)
-DEPENDS =$(SOURCES:%.c=%.d)
+SOURCES  = $(wildcard $(ssrcdir)/*.c)
+OBJECTS  = $(SOURCES:%.c=%.o)
+OBJECTS += $(CODEO)
+DEPENDS  = $(SOURCES:%.c=%.d)
 
 # Autogenerate dependencies from code
 -include $(DEPENDS)
@@ -90,6 +100,8 @@ $(dstdir)/$(NAME): $(OBJECTS)
 clean:
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ $@ dstdir=$(dstdir))
+	$(foreach cod,$(CODE),$(MAKE) --no-print-directory \
+			-C $(cod)/ $@ dstdir=$(dstdir))
 	rm -f $(OBJECTS)
 	rm -f $(DEPENDS)
 
@@ -97,6 +109,8 @@ mrproper: mrpropre
 mrpropre: clean
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ $@ dstdir=$(dstdir))
+	$(foreach cod,$(CODE),$(MAKE) --no-print-directory \
+			-C $(cod)/ $@ dstdir=$(dstdir))
 	rm -f $(dstdir)/$(NAME)
 	rmdir $(dstdir) 2>/dev/null || true
 
