@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 #include <sys/time.h>
+#include <stdio.h>
 
 typedef struct {
 	struct timeval start;
