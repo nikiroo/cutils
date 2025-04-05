@@ -25,6 +25,9 @@ PREFIX    =  /usr/local
 
 ################################################################################
 
+.SUFFIXES:
+.SUFFIXES: .c .h .o .d
+
 ifeq ($(dstdir),)
 dstdir = $(srcdir)/bin
 endif
@@ -33,7 +36,7 @@ ifdef DEBUG
 CFLAGS   += -ggdb -O0
 CXXFLAGS += -ggdb -O0
 endif
-  
+
 # Default target
 .PHONY: all
 all:
@@ -66,21 +69,21 @@ test run run-test run-test-more:
 
 $(dstdir)/lib$(NAME).a: $(OBJECTS)
 	mkdir -p $(dstdir)
-	## OLD: #note: -r = --relocatable, but former also works with Clang
-	## OLD: $(LD) -r $(OBJECTS) -o $@ $(LDFLAGS)
+	@## OLD: #note: -r = --relocatable, but former also works with Clang
+	@## OLD: $(LD) -r $(OBJECTS) -o $@ $(LDFLAGS)
 	$(AR) rcs $@ $(OBJECTS)
 
 clean:
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ $@ dstdir=$(dstdir))
-	rm -f $(OBJECTS)
-	rm -f $(DEPENDS)
+	$(RM) $(OBJECTS)
+	$(RM) $(DEPENDS)
 
 mrproper: mrpropre
 mrpropre: clean
 	$(foreach lib,$(LIBS),$(MAKE) --no-print-directory \
 			-C $(lib)/ $@ dstdir=$(dstdir))
-	rm -f $(dstdir)/lib$(NAME).a
+	$(RM) $(dstdir)/lib$(NAME).a
 	rmdir $(dstdir) 2>/dev/null || true
 
 install: build
@@ -89,9 +92,9 @@ install: build
 	cp "$(ssrcdir)"/*.h       "$(PREFIX)/include/$(srcdir)/"
 
 uninstall:
-	rm "$(PREFIX)/lib/lib$(NAME).a"
-	rmdir "$(PREFIX)/lib"               2>/dev/null
-	rm "$(PREFIX)/include/$(srcdir)/"*.h
-	rmdir "$(PREFIX)/include/$(srcdir)" 2>/dev/null
-	rmdir "$(PREFIX)/include"           2>/dev/null
+	$(RM) "$(PREFIX)/lib/lib$(NAME).a"
+	rmdir "$(PREFIX)/lib"                    2>/dev/null
+	$(RM) "$(PREFIX)/include/$(srcdir)/"*.h
+	rmdir "$(PREFIX)/include/$(srcdir)"      2>/dev/null
+	rmdir "$(PREFIX)/include"                2>/dev/null
 
